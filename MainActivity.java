@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 	EditText username;
 	EditText password;
 	Button enter;
-	TextView state;
+	TextView state;  //this is text view
 	
 	/*public static boolean checkNetworkState(Context context) {
 	    ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

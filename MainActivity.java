@@ -8,13 +8,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -31,8 +36,16 @@ public class MainActivity extends Activity {
 	EditText password;
 	Button enter;
 	TextView state;
-	private List peers = new ArrayList();
+	List peers = new ArrayList();
 	PeerListListener peerListListener;
+	BroadcastReceiver receiver;
+	WifiP2pDevice device;
+	WifiP2pConfig config = new WifiP2pConfig();
+	IntentFilter intentFilter = new IntentFilter();
+	//WiFiBroadcastReceiver receiver;
+	Intent intent;
+	/////
+	
 	
 	/*public static boolean checkNetworkState(Context context) {
 	    ConnectivityManager conMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -44,28 +57,89 @@ public class MainActivity extends Activity {
 	    return false;
 	}
 	*/
+	
+	
+    
+	
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
         wifi=(WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         cnl=wifi.initialize(this, getMainLooper(), null);
+        receiver=new WiFiBroadcastReceiver(wifi,cnl,this);
+        
         state=(TextView)findViewById(R.id.state);
         
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        
+        
+        
+                
+        
+        //wifi.requestPeers(cnl,peerListListener);
+       
+        //go through here
+        wifi.discoverPeers(cnl, new WifiP2pManager.ActionListener() {
+        	 
+            @Override
+            public void onSuccess() {
+                state.setText("find it");//not came to here
+                
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+              //  state.setText("cant find");
+            	//came to here
+            }
+        });
+        
+        
+      
+       
         
         peerListListener = new PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList peerList) {
                 Log.d("wifi", "here");
+                  state.setText("here have wifi");
+                  //not came here
                  // Out with the old, in with the new.
                 peers.clear();
                 peers.addAll(peerList.getDeviceList());
                 if (peers.size() == 0) {
+                	 //not came here
                     Log.d("wifi", "No devices found");
+                    state.setText("cant find wifi");
                     return;
                 }
             }
         };
+        
+        
+        
+       /* config.deviceAddress = device.deviceAddress;
+        
+        wifi.connect(cnl, config, new ActionListener(){
+        	
+        	@Override
+        	public void onSuccess(){
+        		
+        		}
+        	@Override
+        	public void onFailure(int reason){
+        		
+        		
+        	}
+        });      */  
+        
+        
     
        // Toast.makeText(getApplicationContext(), "wifi is disabled..making it enabled", 
        //         Toast.LENGTH_LONG).show();
@@ -87,8 +161,9 @@ public class MainActivity extends Activity {
         enter=(Button)findViewById(R.id.enter);
         username=(EditText)findViewById(R.id.username);
         password=(EditText)findViewById(R.id.password);
+        //came here
         
-        enter.setOnClickListener(new View.OnClickListener() {
+      /*  enter.setOnClickListener(new View.OnClickListener() {
 			
              	
 			@Override
@@ -106,14 +181,52 @@ public class MainActivity extends Activity {
 				
 				
 			}
-		});
+		});*/
     }
-
+    
+   
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        //came here
+        //receiver.onReceive(context, intent)
+        registerReceiver(receiver, intentFilter);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        //not came here
+        unregisterReceiver(receiver);
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+	public void setIsWifiP2pEnabled(boolean b) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+	public void resetData() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public PeerListListener getfDevList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
+	
+   
     
 }
+
+
+

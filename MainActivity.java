@@ -89,7 +89,9 @@ public class MainActivity extends Activity {
         	 
             @Override
             public void onSuccess() {
-                state.setText("find it");//not came to here
+            	Object peerlistsize=peers.size();
+                state.setText("find it"+""+peerlistsize);//not came to here
+                
                 
             }
 
@@ -182,6 +184,11 @@ public class MainActivity extends Activity {
 				
 			}
 		});*/
+        Object s =peers.size();
+        int a=Integer.parseInt(s+"");
+        state.setText(a+"");
+        
+       
     }
     
    
